@@ -86,7 +86,8 @@ public class TrafficController : ControllerBase
 
                 // publish speedingviolation
                 var message = JsonContent.Create<SpeedingViolation>(speedingViolation);
-                await _httpClient.PostAsync("http://localhost:6001/collectfine", message);
+                //await _httpClient.PostAsync("http://localhost:6001/collectfine", message);
+                await _httpClient.PostAsync("http://localhost:3600/v1.0/publish/pubsub/speedingviolations", message);
             }
 
             return Ok();
