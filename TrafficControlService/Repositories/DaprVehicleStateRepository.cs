@@ -4,34 +4,21 @@ public class DaprVehicleStateRepository : IVehicleStateRepository
 {
     private const string DAPR_STORE_NAME = "statestore";
 
-    private readonly HttpClient _httpClient;
+    private readonly DaprClient _daprClient;
 
-    public DaprVehicleStateRepository(HttpClient httpClient)
+    public DaprVehicleStateRepository(DaprClient daprClient)
     {
-        _httpClient = httpClient;
+        _daprClient = daprClient;
     }
 
     public async Task<VehicleState?> GetVehicleStateAsync(string licenseNumber)
     {
-        var state = await _httpClient.GetFromJsonAsync<VehicleState>(
-            $"http://localhost:3600/v1.0/state/{DAPR_STORE_NAME}/{licenseNumber}");
-        
-        return state;
+        return await _daprClient.GetStateAsync<VehicleState>(DAPR_STORE_NAME, licenseNumber);
     }
 
     public async Task SaveVehicleStateAsync(VehicleState vehicleState)
     {
-        var state = new[]
-        {
-            new
-            {
-                key = vehicleState.LicenseNumber,
-                value = vehicleState
-            }
-        };
-
-        await _httpClient.PostAsJsonAsync(
-            $"http://localhost:3600/v1.0/state/{DAPR_STORE_NAME}", state);
+        await _daprClient.SaveStateAsync(DAPR_STORE_NAME, vehicleState.LicenseNumber, vehicleState);
     }
 }
 
