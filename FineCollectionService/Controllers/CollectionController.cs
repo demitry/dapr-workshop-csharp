@@ -9,8 +9,12 @@ public class CollectionController : ControllerBase
     private readonly IFineCalculator _fineCalculator;
     private readonly VehicleRegistrationService _vehicleRegistrationService;
 
-    public CollectionController(IConfiguration config, ILogger<CollectionController> logger,
-        IFineCalculator fineCalculator, VehicleRegistrationService vehicleRegistrationService)
+    public CollectionController(
+        IConfiguration config,
+        ILogger<CollectionController> logger,
+        IFineCalculator fineCalculator,
+        VehicleRegistrationService vehicleRegistrationService,
+        DaprClient daprClient)
     {
         _logger = logger;
         _fineCalculator = fineCalculator;
@@ -19,7 +23,8 @@ public class CollectionController : ControllerBase
         // set finecalculator component license-key
         if (_fineCalculatorLicenseKey == null)
         {
-            _fineCalculatorLicenseKey = config.GetValue<string>("fineCalculatorLicenseKey");
+            var secrets = daprClient.GetSecretAsync("trafficcontrol-secrets", "finecalculator.licensekey").Result;
+            _fineCalculatorLicenseKey = secrets["finecalculator.licensekey"];
         }
     }
 
